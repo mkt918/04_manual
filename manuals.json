@@ -1,0 +1,26 @@
+[
+    {
+        "id": "1",
+        "title": "Manual Hub の使い方",
+        "path": "manuals/IT/manual_hub_usage.md",
+        "genre": "IT・PC",
+        "tags": "基本, チュートリアル",
+        "created_at": "2026-03-27T11:48:00Z"
+    },
+    {
+        "id": "2",
+        "title": "効果的なプロンプトの書き方",
+        "path": "manuals/Business/effective_prompts.md",
+        "genre": "仕事・業務",
+        "tags": "AI, プロンプト, 仕事術",
+        "created_at": "2026-03-27T11:40:00Z"
+    },
+    {
+        "id": "3",
+        "title": "コーヒー豆の保存方法",
+        "path": "manuals/Cooking/coffee_storage.md",
+        "genre": "家庭・料理",
+        "tags": "コーヒー, レシピ, 生活",
+        "created_at": "2026-03-26T10:00:00Z"
+    }
+]
