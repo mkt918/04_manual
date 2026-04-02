@@ -114,7 +114,8 @@ function renderManuals() {
         filtered = filtered.filter(m => 
             m.title.toLowerCase().includes(searchQuery) || 
             (m.tags && m.tags.toLowerCase().includes(searchQuery)) ||
-            (m.genre && m.genre.toLowerCase().includes(searchQuery))
+            (m.genre && m.genre.toLowerCase().includes(searchQuery)) ||
+            (m.content && m.content.toLowerCase().includes(searchQuery))
         );
     }
 
