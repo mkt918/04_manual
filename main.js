@@ -1,23 +1,31 @@
 /**
- * Manual Hub Frontend Logic (Static Version)
+ * Manual Hub Frontend Logic (2-Column Revision)
  */
 
 // --- STATE ---
 let allManuals = [];
 let currentFilter = 'all';
 let searchQuery = '';
+let activeId = null;
 
 // --- DOM ELEMENTS ---
-let manualGrid, genreFilters, searchInput, resultsCount, detailModal, modalContent, modalMeta;
+let manualList, genreFilters, searchInput, resultsCount;
+let welcomeView, manualView, contentRender, mainMeta;
+let sidebar, toggleSidebar;
 
 function initElements() {
-    manualGrid = document.getElementById('manual-grid');
+    manualList = document.getElementById('manual-list');
     genreFilters = document.getElementById('genre-filters');
     searchInput = document.getElementById('search-input');
     resultsCount = document.getElementById('results-count');
-    detailModal = document.getElementById('detail-modal');
-    modalContent = document.getElementById('modal-content');
-    modalMeta = document.getElementById('modal-meta');
+    
+    welcomeView = document.getElementById('welcome-view');
+    manualView = document.getElementById('manual-view');
+    contentRender = document.getElementById('content-render');
+    mainMeta = document.getElementById('main-meta');
+    
+    sidebar = document.getElementById('sidebar');
+    toggleSidebar = document.getElementById('toggle-sidebar');
 }
 
 // --- INITIALIZATION ---
@@ -30,6 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
         searchQuery = e.target.value.toLowerCase();
         renderManuals();
     });
+
+    // Mobile Toggle
+    if (toggleSidebar) {
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
 
     // Marked.js Configuration
     marked.setOptions({
@@ -45,14 +60,11 @@ async function fetchManuals() {
         const response = await fetch('manuals.json');
         allManuals = await response.json();
         
-        // Fetch first lines of each markdown for search index (optional but good for search)
-        // For now we assume manuals.json has title and tags which are enough for simple search
-        
         renderFilters();
         renderManuals();
     } catch (error) {
         console.error('Fetch error:', error);
-        manualGrid.innerHTML = '<p class="col-span-full text-center text-red-500 py-20 font-bold">データの取得に失敗しました。</p>';
+        manualList.innerHTML = '<p class="text-xs text-red-500 py-10 font-bold">Failed to load manuals.</p>';
     }
 }
 
@@ -60,26 +72,33 @@ async function openDetail(id) {
     const manual = allManuals.find(m => m.id === id);
     if (!manual) return;
 
-    modalContent.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>';
-    modalMeta.innerHTML = `
-        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-100/50">${manual.genre}</span>
-        <span class="text-slate-400 text-[10px] font-bold uppercase tracking-tighter self-center">${new Date(manual.created_at).toLocaleDateString()}</span>
+    activeId = id;
+    renderManuals(); // Refresh list to show active state
+
+    // Close mobile sidebar if open
+    if (sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+    }
+
+    // Switch views
+    welcomeView.classList.add('hidden');
+    manualView.classList.remove('hidden');
+    
+    contentRender.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>';
+    contentRender.classList.add('fade-in');
+    
+    mainMeta.innerHTML = `
+        <span class="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[11px] font-black rounded-lg uppercase tracking-[0.15em] border border-indigo-100/50">${manual.genre}</span>
+        <span class="text-slate-400 text-[11px] font-bold uppercase tracking-widest self-center">${new Date(manual.created_at).toLocaleDateString()}</span>
     `;
-    detailModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
 
     try {
         const response = await fetch(manual.path);
         const mdText = await response.text();
-        modalContent.innerHTML = marked.parse(mdText);
+        contentRender.innerHTML = marked.parse(mdText);
     } catch (error) {
-        modalContent.innerHTML = '<p class="text-red-500">ファイルの読み込みに失敗しました。</p>';
+        contentRender.innerHTML = '<p class="text-red-500">ファイルの読み込みに失敗しました。</p>';
     }
-}
-
-function closeDetail() {
-    detailModal.classList.add('hidden');
-    document.body.style.overflow = 'auto';
 }
 
 // --- RENDERING ---
@@ -100,31 +119,25 @@ function renderManuals() {
     }
 
     filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-    resultsCount.textContent = `${filtered.length} Manuals`;
+    resultsCount.textContent = filtered.length;
 
     if (filtered.length === 0) {
-        manualGrid.innerHTML = `
-            <div class="col-span-full py-20 text-center animate-fade-in">
-                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 font-black text-slate-300">!</div>
-                <p class="text-slate-400 font-bold tracking-tight">該当するマニュアルが見つかりませんでした。</p>
+        manualList.innerHTML = `
+            <div class="py-10 text-center animate-fade-in">
+                <p class="text-slate-300 text-xs font-bold uppercase tracking-widest">No results</p>
             </div>
         `;
         return;
     }
 
-    manualGrid.innerHTML = filtered.map((manual, index) => `
-        <div class="manual-card group bg-white p-8 rounded-[2.5rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:shadow-indigo-100/50 transition-all duration-500 fade-in cursor-pointer border-t-4 hover:border-t-indigo-500" 
-             style="animation-delay: ${index * 0.05}s"
+    manualList.innerHTML = filtered.map((manual, index) => `
+        <div class="manual-list-item ${activeId === manual.id ? 'active' : ''}" 
              onclick="openDetail('${manual.id}')">
-            <div class="flex justify-between items-center mb-6">
-                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-100/50">${manual.genre || '未分類'}</span>
-                <span class="text-slate-400 text-[10px] font-bold uppercase tracking-tighter">${new Date(manual.created_at).toLocaleDateString()}</span>
-            </div>
-            <h4 class="text-2xl font-black mb-4 text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">${manual.title}</h4>
-            <div class="flex flex-wrap gap-2 mt-auto">
-                ${(manual.tags || '').split(',').filter(t => t.trim()).map(tag => `
-                    <span class="px-3 py-1.5 bg-slate-50 text-slate-400 text-[10px] font-bold rounded-full ring-1 ring-inset ring-slate-200/50 hover:text-indigo-600 transition-colors">#${tag.trim()}</span>
-                `).join('')}
+            <h4 class="text-sm font-bold mb-1 leading-tight transition-colors">${manual.title}</h4>
+            <div class="flex items-center gap-2 opacity-60">
+                <span class="text-[9px] font-black uppercase tracking-widest text-indigo-500">${manual.genre}</span>
+                <span class="text-[9px] font-bold text-slate-400">•</span>
+                <span class="text-[9px] font-bold text-slate-400">${new Date(manual.created_at).toLocaleDateString()}</span>
             </div>
         </div>
     `).join('');
@@ -133,8 +146,8 @@ function renderManuals() {
 function renderFilters() {
     const genres = ['all', ...new Set(allManuals.map(m => m.genre).filter(g => g))];
     genreFilters.innerHTML = genres.map(g => `
-        <button onclick="filterBy('${g}')" class="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-[0.1em] transition-all duration-300 ${currentFilter === g ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200 ring-4 ring-indigo-500/20' : 'bg-white text-slate-400 border border-slate-200 hover:border-indigo-300 hover:text-indigo-500'}">
-            ${g === 'all' ? 'All Archives' : g}
+        <button onclick="filterBy('${g}')" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-all duration-300 ${currentFilter === g ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 ring-2 ring-indigo-500/20' : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'}">
+            ${g === 'all' ? 'All' : g}
         </button>
     `).join('');
 }
@@ -142,13 +155,11 @@ function renderFilters() {
 // --- HELPERS ---
 
 function filterBy(genreOrTag) {
-    if (event) event.stopPropagation(); // Prevent modal from opening if tag is clicked inside card
+    if (window.event) window.event.stopPropagation();
     currentFilter = genreOrTag;
     renderManuals();
     renderFilters();
-    document.getElementById('list').scrollIntoView({ behavior: 'smooth' });
 }
 
 window.filterBy = filterBy;
 window.openDetail = openDetail;
-window.closeDetail = closeDetail;

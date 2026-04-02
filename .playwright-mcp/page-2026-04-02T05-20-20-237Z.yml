@@ -1,0 +1,40 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - generic [ref=e7] [cursor=pointer]:
+        - generic [ref=e8]: M
+        - generic [ref=e9]:
+          - heading "Manual Hub" [level=1] [ref=e10]
+          - generic [ref=e11]: Archive System
+      - navigation [ref=e13]:
+        - link "ホーム" [ref=e14] [cursor=pointer]:
+          - /url: "#"
+          - text: ホーム
+        - link "マニュアル一覧" [ref=e15] [cursor=pointer]:
+          - /url: "#list"
+          - text: マニュアル一覧
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e20]: Knowledge Repository
+      - heading "あなたの知識を、 永久保存する。" [level=2] [ref=e21]:
+        - text: あなたの知識を、
+        - text: 永久保存する。
+      - paragraph [ref=e22]: 重要な手順や知識を、美しく構造化されたマニュアルとして集約。必要な時に、必要な場所で、一瞬で見つけ出すことができます。
+    - generic [ref=e26]:
+      - generic:
+        - img
+      - textbox "タイトルや内容で検索..." [ref=e27]
+    - generic [ref=e29]:
+      - heading "Archives" [level=3] [ref=e30]
+      - generic [ref=e32]: 0 Manuals
+  - contentinfo [ref=e33]:
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e37]: M
+        - heading "Manual Hub" [level=4] [ref=e38]
+      - paragraph [ref=e39]: © 2026 Manual Hub. Updated by Antigravity Thinking.
+      - generic [ref=e40]:
+        - link "Privacy" [ref=e41] [cursor=pointer]:
+          - /url: "#"
+        - link "Terms" [ref=e42] [cursor=pointer]:
+          - /url: "#"

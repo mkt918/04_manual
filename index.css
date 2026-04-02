@@ -1,8 +1,13 @@
-/* Custom Styles for Manual Hub | Premium Refresh */
+/* Custom Styles for Manual Hub | Gemini-like 2-column Layout */
 
 :root {
     --primary: #4f46e5;
-    --primary-hover: #4338ca;
+    --primary-light: #f5f3ff;
+    --primary-border: #e0e7ff;
+    --sidebar-bg: #ffffff;
+    --main-bg: #fdfdfd;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
     --accent: #10b981;
 }
 
@@ -10,14 +15,31 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overflow: hidden; /* Main and sidebar will have their own scroll */
+}
+
+/* Layout Utilities */
+.sidebar {
+    width: 320px;
+    height: 100vh;
+    border-right: 1px solid var(--primary-border);
+    background: var(--sidebar-bg);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.main-content {
+    flex: 1;
+    height: 100vh;
+    background: var(--main-bg);
+    overflow-y: auto;
+    position: relative;
 }
 
 /* Glassmorphism subtle effects */
-.glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+.glass-sidebar {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 /* Custom scrollbar */
@@ -37,42 +59,52 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInRight {
-    from { transform: translateX(20px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
 .fade-in {
-    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-fade-in {
-    animation: fadeIn 1s ease-out;
+/* Sidebar Manual Items */
+.manual-list-item {
+    padding: 1rem 1.25rem;
+    border-radius: 1.25rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid transparent;
 }
 
-/* Manual Content Formatting */
-.manual-content {
-    line-height: 1.8;
-    white-space: pre-wrap;
+.manual-list-item:hover {
+    background: var(--primary-light);
+    color: var(--primary);
 }
 
-/* Line Clamp Fix for older browsers */
-.line-clamp-4 {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;  
-    overflow: hidden;
+.manual-list-item.active {
+    background: var(--primary-light);
+    border-left-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.08);
 }
 
-/* Micro-interactions */
-.manual-card {
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+/* Manual Content Area */
+#content-render {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 8rem 1rem;
 }
 
-.manual-card:hover {
-    transform: translateY(-8px);
+/* Responsive sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -320px;
+        z-index: 50;
+        box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+    }
+    .sidebar.open {
+        left: 0;
+    }
 }
