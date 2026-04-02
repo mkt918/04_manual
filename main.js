@@ -8,16 +8,21 @@ let currentFilter = 'all';
 let searchQuery = '';
 
 // --- DOM ELEMENTS ---
-const manualGrid = document.getElementById('manual-grid');
-const genreFilters = document.getElementById('genre-filters');
-const searchInput = document.getElementById('search-input');
-const resultsCount = document.getElementById('results-count');
-const detailModal = document.getElementById('detail-modal');
-const modalContent = document.getElementById('modal-content');
-const modalMeta = document.getElementById('modal-meta');
+let manualGrid, genreFilters, searchInput, resultsCount, detailModal, modalContent, modalMeta;
+
+function initElements() {
+    manualGrid = document.getElementById('manual-grid');
+    genreFilters = document.getElementById('genre-filters');
+    searchInput = document.getElementById('search-input');
+    resultsCount = document.getElementById('results-count');
+    detailModal = document.getElementById('detail-modal');
+    modalContent = document.getElementById('modal-content');
+    modalMeta = document.getElementById('modal-meta');
+}
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+    initElements();
     fetchManuals();
     
     // Search Event
