@@ -1,5 +1,29 @@
 [
     {
+        "id": "6",
+        "title": "2026年度 始業式（4月7日）の予定",
+        "path": "manuals/School/2026_opening_ceremony.md",
+        "genre": "学校",
+        "tags": "予定, 始業式",
+        "created_at": "2026-04-07T08:00:00Z"
+    },
+    {
+        "id": "5",
+        "title": "2026年度 入学式（4月6日）の予定",
+        "path": "manuals/School/2026_entrance_ceremony.md",
+        "genre": "学校",
+        "tags": "予定, 入学式",
+        "created_at": "2026-04-06T08:00:00Z"
+    },
+    {
+        "id": "4",
+        "title": "2026年度4月3日 登校日の予定",
+        "path": "manuals/School/2026_school_day.md",
+        "genre": "学校",
+        "tags": "予定, 新学期",
+        "created_at": "2026-04-02T12:35:00Z"
+    },
+    {
         "id": "1",
         "title": "Manual Hub の使い方",
         "path": "manuals/IT/manual_hub_usage.md",
