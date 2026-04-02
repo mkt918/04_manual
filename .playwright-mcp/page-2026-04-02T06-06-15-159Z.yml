@@ -1,0 +1,22 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5] [cursor=pointer]:
+        - generic [ref=e6]: M
+        - generic [ref=e7]:
+          - heading "Manual Hub" [level=1] [ref=e8]
+          - generic [ref=e9]: Archive System
+      - generic [ref=e10]:
+        - generic:
+          - img
+        - textbox "タイトルや内容で検索..." [ref=e11]
+      - generic [ref=e12]:
+        - generic [ref=e13]: Recent Archives
+        - generic [ref=e14]: "0"
+  - main [ref=e16]:
+    - generic [ref=e19]:
+      - img [ref=e21]
+      - heading "あなたの知識を、 永久保存する。" [level=2] [ref=e23]:
+        - text: あなたの知識を、
+        - text: 永久保存する。
+      - paragraph [ref=e24]: 左側のリストから参照したいマニュアルを選択してください。
