@@ -1,0 +1,99 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - generic [ref=e7] [cursor=pointer]:
+        - generic [ref=e8]: M
+        - generic [ref=e9]:
+          - heading "Manual Hub" [level=1] [ref=e10]
+          - generic [ref=e11]: Archive System
+      - navigation [ref=e13]:
+        - link "ホーム" [ref=e14] [cursor=pointer]:
+          - /url: "#"
+          - text: ホーム
+        - link "マニュアル一覧" [ref=e15] [cursor=pointer]:
+          - /url: "#list"
+          - text: マニュアル一覧
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e20]: Knowledge Repository
+      - heading "あなたの知識を、 永久保存する。" [level=2] [ref=e21]:
+        - text: あなたの知識を、
+        - text: 永久保存する。
+      - paragraph [ref=e22]: 重要な手順や知識を、美しく構造化されたマニュアルとして集約。必要な時に、必要な場所で、一瞬で見つけ出すことができます。
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - generic:
+          - img
+        - textbox "タイトルや内容で検索..." [ref=e27]
+      - generic [ref=e28]:
+        - button "All Archives" [ref=e29] [cursor=pointer]
+        - button "学校" [ref=e30] [cursor=pointer]
+        - button "IT・PC" [ref=e31] [cursor=pointer]
+        - button "仕事・業務" [ref=e32] [cursor=pointer]
+        - button "家庭・料理" [ref=e33] [cursor=pointer]
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - heading "Archives" [level=3] [ref=e36]
+        - generic [ref=e38]: 6 Manuals
+      - generic [ref=e39]:
+        - generic [ref=e40] [cursor=pointer]:
+          - generic [ref=e41]:
+            - generic [ref=e42]: 学校
+            - generic [ref=e43]: 2026/4/7
+          - heading "2026年度 始業式（4月7日）の予定" [level=4] [ref=e44]
+          - generic [ref=e45]:
+            - generic [ref=e46]: "#予定"
+            - generic [ref=e47]: "#始業式"
+        - generic [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: 学校
+            - generic [ref=e51]: 2026/4/6
+          - heading "2026年度 入学式（4月6日）の予定" [level=4] [ref=e52]
+          - generic [ref=e53]:
+            - generic [ref=e54]: "#予定"
+            - generic [ref=e55]: "#入学式"
+        - generic [ref=e56] [cursor=pointer]:
+          - generic [ref=e57]:
+            - generic [ref=e58]: 学校
+            - generic [ref=e59]: 2026/4/2
+          - heading "2026年度4月3日 登校日の予定" [level=4] [ref=e60]
+          - generic [ref=e61]:
+            - generic [ref=e62]: "#予定"
+            - generic [ref=e63]: "#新学期"
+        - generic [ref=e64] [cursor=pointer]:
+          - generic [ref=e65]:
+            - generic [ref=e66]: IT・PC
+            - generic [ref=e67]: 2026/3/27
+          - heading "Manual Hub の使い方" [level=4] [ref=e68]
+          - generic [ref=e69]:
+            - generic [ref=e70]: "#基本"
+            - generic [ref=e71]: "#チュートリアル"
+        - generic [ref=e72] [cursor=pointer]:
+          - generic [ref=e73]:
+            - generic [ref=e74]: 仕事・業務
+            - generic [ref=e75]: 2026/3/27
+          - heading "効果的なプロンプトの書き方" [level=4] [ref=e76]
+          - generic [ref=e77]:
+            - generic [ref=e78]: "#AI"
+            - generic [ref=e79]: "#プロンプト"
+            - generic [ref=e80]: "#仕事術"
+        - generic [ref=e81] [cursor=pointer]:
+          - generic [ref=e82]:
+            - generic [ref=e83]: 家庭・料理
+            - generic [ref=e84]: 2026/3/26
+          - heading "コーヒー豆の保存方法" [level=4] [ref=e85]
+          - generic [ref=e86]:
+            - generic [ref=e87]: "#コーヒー"
+            - generic [ref=e88]: "#レシピ"
+            - generic [ref=e89]: "#生活"
+  - contentinfo [ref=e90]:
+    - generic [ref=e92]:
+      - generic [ref=e93]:
+        - generic [ref=e94]: M
+        - heading "Manual Hub" [level=4] [ref=e95]
+      - paragraph [ref=e96]: © 2026 Manual Hub. Updated by Antigravity Thinking.
+      - generic [ref=e97]:
+        - link "Privacy" [ref=e98] [cursor=pointer]:
+          - /url: "#"
+        - link "Terms" [ref=e99] [cursor=pointer]:
+          - /url: "#"
