@@ -2,7 +2,7 @@
     {
         "id": "7",
         "title": "2026年4月5日（日）のお出かけ予定",
-        "path": "manuals/School/2026_0405_outing.md",
+        "path": "manuals/School/2026-04-05_outing.md",
         "genre": "学校",
         "tags": "予定, お出かけ, 休日",
         "created_at": "2026-04-05T10:00:00Z",
@@ -11,7 +11,7 @@
     {
         "id": "6",
         "title": "2026年度 始業式（4月7日）の予定",
-        "path": "manuals/School/2026_opening_ceremony.md",
+        "path": "manuals/School/2026-04-07_opening_ceremony.md",
         "genre": "学校",
         "tags": "予定, 始業式",
         "created_at": "2026-04-07T08:00:00Z",
@@ -20,7 +20,7 @@
     {
         "id": "5",
         "title": "2026年度 入学式（4月6日）の予定",
-        "path": "manuals/School/2026_entrance_ceremony.md",
+        "path": "manuals/School/2026-04-06_entrance_ceremony.md",
         "genre": "学校",
         "tags": "予定, 入学式",
         "created_at": "2026-04-06T08:00:00Z",
@@ -29,7 +29,7 @@
     {
         "id": "4",
         "title": "2026年度4月3日 登校日の予定",
-        "path": "manuals/School/2026_school_day.md",
+        "path": "manuals/School/2026-04-02_school_day.md",
         "genre": "学校",
         "tags": "予定, 新学期",
         "created_at": "2026-04-02T12:35:00Z",
@@ -38,7 +38,7 @@
     {
         "id": "1",
         "title": "Manual Hub の使い方",
-        "path": "manuals/IT/manual_hub_usage.md",
+        "path": "manuals/IT/2026-03-27_manual_hub_usage.md",
         "genre": "IT・PC",
         "tags": "基本, チュートリアル",
         "created_at": "2026-03-27T11:48:00Z",
@@ -47,7 +47,7 @@
     {
         "id": "2",
         "title": "効果的なプロンプトの書き方",
-        "path": "manuals/Business/effective_prompts.md",
+        "path": "manuals/Business/2026-03-27_effective_prompts.md",
         "genre": "仕事・業務",
         "tags": "AI, プロンプト, 仕事術",
         "created_at": "2026-03-27T11:40:00Z",
@@ -56,7 +56,7 @@
     {
         "id": "3",
         "title": "コーヒー豆の保存方法",
-        "path": "manuals/Cooking/coffee_storage.md",
+        "path": "manuals/Cooking/2026-03-26_coffee_storage.md",
         "genre": "家庭・料理",
         "tags": "コーヒー, レシピ, 生活",
         "created_at": "2026-03-26T10:00:00Z",
