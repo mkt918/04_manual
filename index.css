@@ -293,10 +293,6 @@ body {
     background: #d1fae5;
 }
 
-.task-check.checked:hover {
-    background: #059669;
-}
-
 .task-title {
     flex: 1;
     font-size: 11px;

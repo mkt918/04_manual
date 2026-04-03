@@ -317,84 +317,21 @@ window.openDetail = openDetail;
 window.selectCalDate = selectCalDate;
 
 // ============================================================
-// タスク管理
+// タスク管理（tasks.json から読み込み、Claude経由で管理）
 // ============================================================
 
-const TASKS_KEY = 'manual_hub_tasks';
 let tasks = [];
-let currentTaskPriority = 'normal';
 let currentTaskFilter = 'all'; // 'all' | 'active' | 'done'
 
-// --- タスクデータ読み込み ---
-function loadTasks() {
+// --- tasks.json を取得 ---
+async function fetchTasks() {
     try {
-        tasks = JSON.parse(localStorage.getItem(TASKS_KEY)) || [];
+        const res = await fetch('tasks.json');
+        tasks = await res.json();
     } catch (_) {
         tasks = [];
     }
-}
-
-// --- タスクデータ保存 ---
-function saveTasks() {
-    localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
-}
-
-// --- タスク追加 ---
-function addTask() {
-    const input = document.getElementById('task-input');
-    const title = input.value.trim();
-    if (!title) return;
-
-    const task = {
-        id: Date.now().toString(),
-        title,
-        done: false,
-        priority: currentTaskPriority,
-        createdAt: new Date().toISOString()
-    };
-
-    tasks.unshift(task);
-    saveTasks();
-    input.value = '';
     renderTasks();
-}
-
-// --- タスク完了トグル ---
-function toggleTask(id) {
-    const t = tasks.find(t => t.id === id);
-    if (!t) return;
-    t.done = !t.done;
-    saveTasks();
-    renderTasks();
-}
-
-// --- タスク削除 ---
-function deleteTask(id) {
-    tasks = tasks.filter(t => t.id !== id);
-    saveTasks();
-    renderTasks();
-}
-
-// --- 完了済み一括削除 ---
-function clearDoneTasks() {
-    tasks = tasks.filter(t => !t.done);
-    saveTasks();
-    renderTasks();
-}
-
-// --- 優先度設定 ---
-function setTaskPriority(priority) {
-    currentTaskPriority = priority;
-    document.querySelectorAll('.priority-btn').forEach(btn => {
-        btn.className = 'priority-btn flex-1 text-[10px] font-black py-1.5 rounded-lg border-2 border-slate-200 text-slate-400 hover:border-slate-300 transition-all';
-    });
-    const colors = { low: 'border-emerald-400 text-emerald-600 bg-emerald-50', normal: 'border-indigo-400 text-indigo-600 bg-indigo-50', high: 'border-rose-400 text-rose-600 bg-rose-50' };
-    const labels = { low: '低', normal: '中', high: '高' };
-    document.querySelectorAll('.priority-btn').forEach(btn => {
-        if (btn.textContent.trim() === labels[priority]) {
-            btn.className = `priority-btn flex-1 text-[10px] font-black py-1.5 rounded-lg border-2 ${colors[priority]} transition-all`;
-        }
-    });
 }
 
 // --- フィルター変更 ---
@@ -430,7 +367,7 @@ function renderTasks() {
         return;
     }
 
-    // 優先度順（high > normal > low）+ 未完了を上
+    // 優先度順（high > normal > low）＋ 未完了を上
     const priorityOrder = { high: 0, normal: 1, low: 2 };
     const sorted = [...filtered].sort((a, b) => {
         if (a.done !== b.done) return a.done ? 1 : -1;
@@ -442,14 +379,13 @@ function renderTasks() {
         const doneClass = t.done ? 'done-task' : '';
         const checkClass = t.done ? 'checked' : '';
         const textClass = t.done ? 'done-text' : '';
-        const checkMark = t.done ? `<svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>` : '';
+        const checkMark = t.done
+            ? `<svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`
+            : '';
         return `
             <div class="task-item ${priorityClass} ${doneClass}">
-                <div class="task-check ${checkClass}" onclick="toggleTask('${t.id}')">${checkMark}</div>
+                <div class="task-check ${checkClass}">${checkMark}</div>
                 <span class="task-title ${textClass}">${escapeHtml(t.title)}</span>
-                <button class="task-del-btn" onclick="deleteTask('${t.id}')">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
             </div>
         `;
     }).join('');
@@ -485,13 +421,8 @@ function switchTab(tab) {
 }
 
 // --- グローバル公開 ---
-window.addTask = addTask;
-window.toggleTask = toggleTask;
-window.deleteTask = deleteTask;
-window.clearDoneTasks = clearDoneTasks;
-window.setTaskPriority = setTaskPriority;
 window.setTaskFilter = setTaskFilter;
 window.switchTab = switchTab;
 
-// --- 初期化時にタスクを読み込み ---
-loadTasks();
+// --- 初期化時にタスクを取得 ---
+fetchTasks();

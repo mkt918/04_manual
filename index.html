@@ -160,24 +160,6 @@
                         </div>
                     </div>
 
-                    <!-- タスク入力エリア -->
-                    <div class="mb-4">
-                        <div class="flex gap-2 mb-2">
-                            <input type="text" id="task-input" placeholder="新しいタスクを入力..."
-                                class="flex-1 px-3 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-200 focus:bg-white focus:border-indigo-500 outline-none text-xs font-bold text-slate-700 placeholder:text-slate-300 transition-all"
-                                onkeydown="if(event.key==='Enter') addTask()">
-                            <button onclick="addTask()" class="w-9 h-9 flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex items-center justify-center transition-all shadow-md shadow-indigo-100 active:scale-95">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                            </button>
-                        </div>
-                        <!-- 優先度選択 -->
-                        <div class="flex gap-1.5" id="priority-selector">
-                            <button onclick="setTaskPriority('low')" class="priority-btn flex-1 text-[10px] font-black py-1.5 rounded-lg border-2 border-slate-200 text-slate-400 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all">低</button>
-                            <button onclick="setTaskPriority('normal')" class="priority-btn flex-1 text-[10px] font-black py-1.5 rounded-lg border-2 border-indigo-400 text-indigo-600 bg-indigo-50 transition-all">中</button>
-                            <button onclick="setTaskPriority('high')" class="priority-btn flex-1 text-[10px] font-black py-1.5 rounded-lg border-2 border-slate-200 text-slate-400 hover:border-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-all">高</button>
-                        </div>
-                    </div>
-
                     <!-- フィルタータブ -->
                     <div class="flex gap-1 mb-3">
                         <button onclick="setTaskFilter('all')" id="tf-all" class="task-filter-btn active-filter flex-1 text-[10px] font-black py-1.5 rounded-lg transition-all">すべて</button>
@@ -190,9 +172,9 @@
                         <!-- JS injection -->
                     </div>
 
-                    <!-- 完了済みクリアボタン -->
-                    <div class="mt-4 text-center">
-                        <button onclick="clearDoneTasks()" class="text-[10px] font-black text-slate-300 hover:text-rose-400 transition-colors uppercase tracking-widest">完了済みを削除</button>
+                    <!-- 案内 -->
+                    <div class="mt-5 px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <p class="text-[10px] text-slate-400 font-bold leading-relaxed">タスクの追加・削除・完了はClaudeに依頼してください。</p>
                     </div>
                 </div>
 
