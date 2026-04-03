@@ -217,6 +217,136 @@ body {
 }
 
 /* ============================
+   タブUI（右パネル）
+   ============================ */
+.tab-btn {
+    color: #94a3b8;
+    background: transparent;
+}
+
+.tab-active {
+    background: #fff;
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
+}
+
+/* ============================
+   タスクリスト
+   ============================ */
+.task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    border-left: 3px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.task-item:hover {
+    background: #f1f5f9;
+}
+
+.task-item.priority-high {
+    border-left-color: #f43f5e;
+    background: #fff5f7;
+}
+
+.task-item.priority-normal {
+    border-left-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.task-item.priority-low {
+    border-left-color: #10b981;
+    background: #f0fdf4;
+}
+
+.task-item.done-task {
+    opacity: 0.45;
+    border-left-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.task-check {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-top: 1px;
+}
+
+.task-check.checked {
+    background: #10b981;
+    border-color: #10b981;
+}
+
+.task-check:hover {
+    border-color: #10b981;
+    background: #d1fae5;
+}
+
+.task-check.checked:hover {
+    background: #059669;
+}
+
+.task-title {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 700;
+    color: #334155;
+    line-height: 1.4;
+    word-break: break-all;
+}
+
+.task-title.done-text {
+    text-decoration: line-through;
+    color: #94a3b8;
+}
+
+.task-del-btn {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+    background: transparent;
+}
+
+.task-item:hover .task-del-btn {
+    opacity: 1;
+}
+
+.task-del-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+/* タスクフィルタータブ */
+.task-filter-btn {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+.active-filter {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+/* ============================
    レスポンシブ
    ============================ */
 

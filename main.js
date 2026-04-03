@@ -315,3 +315,183 @@ function selectCalDate(dateKey) {
 window.filterBy = filterBy;
 window.openDetail = openDetail;
 window.selectCalDate = selectCalDate;
+
+// ============================================================
+// タスク管理
+// ============================================================
+
+const TASKS_KEY = 'manual_hub_tasks';
+let tasks = [];
+let currentTaskPriority = 'normal';
+let currentTaskFilter = 'all'; // 'all' | 'active' | 'done'
+
+// --- タスクデータ読み込み ---
+function loadTasks() {
+    try {
+        tasks = JSON.parse(localStorage.getItem(TASKS_KEY)) || [];
+    } catch (_) {
+        tasks = [];
+    }
+}
+
+// --- タスクデータ保存 ---
+function saveTasks() {
+    localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+}
+
+// --- タスク追加 ---
+function addTask() {
+    const input = document.getElementById('task-input');
+    const title = input.value.trim();
+    if (!title) return;
+
+    const task = {
+        id: Date.now().toString(),
+        title,
+        done: false,
+        priority: currentTaskPriority,
+        createdAt: new Date().toISOString()
+    };
+
+    tasks.unshift(task);
+    saveTasks();
+    input.value = '';
+    renderTasks();
+}
+
+// --- タスク完了トグル ---
+function toggleTask(id) {
+    const t = tasks.find(t => t.id === id);
+    if (!t) return;
+    t.done = !t.done;
+    saveTasks();
+    renderTasks();
+}
+
+// --- タスク削除 ---
+function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    saveTasks();
+    renderTasks();
+}
+
+// --- 完了済み一括削除 ---
+function clearDoneTasks() {
+    tasks = tasks.filter(t => !t.done);
+    saveTasks();
+    renderTasks();
+}
+
+// --- 優先度設定 ---
+function setTaskPriority(priority) {
+    currentTaskPriority = priority;
+    document.querySelectorAll('.priority-btn').forEach(btn => {
+        btn.className = 'priority-btn flex-1 text-[10px] font-black py-1.5 rounded-lg border-2 border-slate-200 text-slate-400 hover:border-slate-300 transition-all';
+    });
+    const colors = { low: 'border-emerald-400 text-emerald-600 bg-emerald-50', normal: 'border-indigo-400 text-indigo-600 bg-indigo-50', high: 'border-rose-400 text-rose-600 bg-rose-50' };
+    const labels = { low: '低', normal: '中', high: '高' };
+    document.querySelectorAll('.priority-btn').forEach(btn => {
+        if (btn.textContent.trim() === labels[priority]) {
+            btn.className = `priority-btn flex-1 text-[10px] font-black py-1.5 rounded-lg border-2 ${colors[priority]} transition-all`;
+        }
+    });
+}
+
+// --- フィルター変更 ---
+function setTaskFilter(filter) {
+    currentTaskFilter = filter;
+    ['all', 'active', 'done'].forEach(f => {
+        const btn = document.getElementById(`tf-${f}`);
+        if (btn) btn.className = `task-filter-btn flex-1 text-[10px] font-black py-1.5 rounded-lg transition-all${f === filter ? ' active-filter' : ''}`;
+    });
+    renderTasks();
+}
+
+// --- タスク描画 ---
+function renderTasks() {
+    const list = document.getElementById('task-list');
+    const progressLabel = document.getElementById('task-progress-label');
+    const progressBar = document.getElementById('task-progress-bar');
+    if (!list) return;
+
+    // 進捗バー更新
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    progressLabel.textContent = `${done} / ${total}`;
+    progressBar.style.width = total === 0 ? '0%' : `${Math.round(done / total * 100)}%`;
+
+    // フィルター適用
+    let filtered = tasks;
+    if (currentTaskFilter === 'active') filtered = tasks.filter(t => !t.done);
+    if (currentTaskFilter === 'done')   filtered = tasks.filter(t => t.done);
+
+    if (filtered.length === 0) {
+        list.innerHTML = `<p class="text-center text-[10px] text-slate-300 font-bold py-6 uppercase tracking-widest">タスクなし</p>`;
+        return;
+    }
+
+    // 優先度順（high > normal > low）+ 未完了を上
+    const priorityOrder = { high: 0, normal: 1, low: 2 };
+    const sorted = [...filtered].sort((a, b) => {
+        if (a.done !== b.done) return a.done ? 1 : -1;
+        return (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1);
+    });
+
+    list.innerHTML = sorted.map(t => {
+        const priorityClass = t.done ? '' : `priority-${t.priority}`;
+        const doneClass = t.done ? 'done-task' : '';
+        const checkClass = t.done ? 'checked' : '';
+        const textClass = t.done ? 'done-text' : '';
+        const checkMark = t.done ? `<svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>` : '';
+        return `
+            <div class="task-item ${priorityClass} ${doneClass}">
+                <div class="task-check ${checkClass}" onclick="toggleTask('${t.id}')">${checkMark}</div>
+                <span class="task-title ${textClass}">${escapeHtml(t.title)}</span>
+                <button class="task-del-btn" onclick="deleteTask('${t.id}')">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+// --- XSS防止ユーティリティ ---
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// --- タブ切り替え ---
+function switchTab(tab) {
+    const calSection  = document.getElementById('section-calendar');
+    const taskSection = document.getElementById('section-tasks');
+    const calBtn      = document.getElementById('tab-cal-btn');
+    const taskBtn     = document.getElementById('tab-task-btn');
+
+    const active   = 'tab-btn tab-active flex-1 text-[11px] font-black py-2 rounded-lg transition-all';
+    const inactive = 'tab-btn flex-1 text-[11px] font-black py-2 rounded-lg transition-all';
+
+    if (tab === 'calendar') {
+        calSection.classList.remove('hidden');
+        taskSection.classList.add('hidden');
+        calBtn.className = active;
+        taskBtn.className = inactive;
+    } else {
+        calSection.classList.add('hidden');
+        taskSection.classList.remove('hidden');
+        calBtn.className = inactive;
+        taskBtn.className = active;
+        renderTasks();
+    }
+}
+
+// --- グローバル公開 ---
+window.addTask = addTask;
+window.toggleTask = toggleTask;
+window.deleteTask = deleteTask;
+window.clearDoneTasks = clearDoneTasks;
+window.setTaskPriority = setTaskPriority;
+window.setTaskFilter = setTaskFilter;
+window.switchTab = switchTab;
+
+// --- 初期化時にタスクを読み込み ---
+loadTasks();
