@@ -398,26 +398,119 @@ function escapeHtml(str) {
 
 // --- タブ切り替え ---
 function switchTab(tab) {
-    const calSection  = document.getElementById('section-calendar');
-    const taskSection = document.getElementById('section-tasks');
-    const calBtn      = document.getElementById('tab-cal-btn');
-    const taskBtn     = document.getElementById('tab-task-btn');
+    const sectionIds = { calendar: 'section-calendar', todo: 'section-todo', tasks: 'section-tasks' };
+    const btnIds     = { calendar: 'tab-cal-btn',      todo: 'tab-todo-btn', tasks: 'tab-task-btn' };
 
-    const active   = 'tab-btn tab-active flex-1 text-[11px] font-black py-2 rounded-lg transition-all';
-    const inactive = 'tab-btn flex-1 text-[11px] font-black py-2 rounded-lg transition-all';
+    const active   = 'tab-btn tab-active flex-1 text-[10px] font-black py-2 rounded-lg transition-all';
+    const inactive = 'tab-btn flex-1 text-[10px] font-black py-2 rounded-lg transition-all';
 
-    if (tab === 'calendar') {
-        calSection.classList.remove('hidden');
-        taskSection.classList.add('hidden');
-        calBtn.className = active;
-        taskBtn.className = inactive;
-    } else {
-        calSection.classList.add('hidden');
-        taskSection.classList.remove('hidden');
-        calBtn.className = inactive;
-        taskBtn.className = active;
-        renderTasks();
+    Object.keys(sectionIds).forEach(t => {
+        const section = document.getElementById(sectionIds[t]);
+        const btn     = document.getElementById(btnIds[t]);
+        if (section) section.classList.toggle('hidden', t !== tab);
+        if (btn)     btn.className = t === tab ? active : inactive;
+    });
+
+    if (tab === 'todo')  renderTodo();
+    if (tab === 'tasks') renderTasks();
+}
+
+// --- TODO：カレンダー予定＋タスクを統合表示 ---
+function renderTodo() {
+    const todoList = document.getElementById('todo-list');
+    if (!todoList) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const MS_DAY = 86400000;
+
+    const items = [];
+
+    // マニュアルから今日以降の予定を収集
+    allManuals.forEach(m => {
+        if (!m.created_at) return;
+        const d = new Date(m.created_at);
+        d.setHours(0, 0, 0, 0);
+        if (d >= today) {
+            items.push({ type: 'event', title: m.title, date: d, label: m.genre, id: m.id });
+        }
+    });
+
+    // 未完了タスクを収集
+    tasks.filter(t => !t.done).forEach(t => {
+        const date = t.due_date
+            ? (() => { const d = new Date(t.due_date); d.setHours(0, 0, 0, 0); return d; })()
+            : null;
+        items.push({ type: 'task', title: t.title, date, priority: t.priority, id: t.id });
+    });
+
+    // グループ定義
+    const groups = [
+        { key: 'today',    label: '今日',     cls: 'text-rose-500   bg-rose-50   border-rose-200',   items: [] },
+        { key: 'tomorrow', label: '明日',     cls: 'text-orange-500 bg-orange-50 border-orange-200', items: [] },
+        { key: 'week',     label: '今週',     cls: 'text-indigo-500 bg-indigo-50 border-indigo-200', items: [] },
+        { key: 'later',    label: 'それ以降', cls: 'text-slate-500  bg-slate-50  border-slate-200',  items: [] },
+        { key: 'none',     label: '期限なし', cls: 'text-slate-400  bg-slate-50  border-slate-100',  items: [] },
+    ];
+
+    items.forEach(item => {
+        if (!item.date) { groups[4].items.push(item); return; }
+        const diff = Math.round((item.date - today) / MS_DAY);
+        if      (diff === 0) groups[0].items.push(item);
+        else if (diff === 1) groups[1].items.push(item);
+        else if (diff <= 6)  groups[2].items.push(item);
+        else                 groups[3].items.push(item);
+    });
+
+    // グループ内ソート（予定 > タスク、タスクは優先度順）
+    const priorityOrder = { high: 0, normal: 1, low: 2 };
+    groups.forEach(g => {
+        g.items.sort((a, b) => {
+            if (a.type !== b.type) return a.type === 'event' ? -1 : 1;
+            return (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1);
+        });
+    });
+
+    const filledGroups = groups.filter(g => g.items.length > 0);
+    if (filledGroups.length === 0) {
+        todoList.innerHTML = `<p class="text-center text-[10px] text-slate-300 font-bold py-6 uppercase tracking-widest">予定・タスクなし</p>`;
+        return;
     }
+
+    todoList.innerHTML = filledGroups.map(g => `
+        <div class="mb-5">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-[9px] font-black px-2 py-0.5 rounded-full border ${g.cls}">${g.label}</span>
+                <div class="flex-1 h-px bg-slate-100"></div>
+            </div>
+            <div class="space-y-1.5">
+                ${g.items.map(renderTodoItem).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderTodoItem(item) {
+    if (item.type === 'event') {
+        const mm = item.date.getMonth() + 1;
+        const dd = item.date.getDate();
+        return `
+            <div class="todo-item todo-event" onclick="openDetail('${item.id}')">
+                <span class="todo-icon">📅</span>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[11px] font-bold text-slate-700 leading-snug">${escapeHtml(item.title)}</p>
+                    <p class="text-[9px] text-indigo-400 font-black tracking-wide mt-0.5">${mm}/${dd} · ${escapeHtml(item.label)}</p>
+                </div>
+            </div>
+        `;
+    }
+    const dotCls = { high: 'bg-rose-400', normal: 'bg-indigo-400', low: 'bg-emerald-400' }[item.priority] || 'bg-slate-300';
+    return `
+        <div class="todo-item todo-task">
+            <span class="w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${dotCls}"></span>
+            <p class="text-[11px] font-bold text-slate-700 leading-snug">${escapeHtml(item.title)}</p>
+        </div>
+    `;
 }
 
 // --- グローバル公開 ---

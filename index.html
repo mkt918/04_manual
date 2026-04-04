@@ -98,10 +98,13 @@
             <div class="p-5">
                 <!-- タブ切り替え -->
                 <div class="flex mb-5 bg-slate-100 rounded-xl p-1 gap-1">
-                    <button id="tab-cal-btn" onclick="switchTab('calendar')" class="tab-btn tab-active flex-1 text-[11px] font-black py-2 rounded-lg transition-all">
-                        📅 カレンダー
+                    <button id="tab-cal-btn" onclick="switchTab('calendar')" class="tab-btn tab-active flex-1 text-[10px] font-black py-2 rounded-lg transition-all">
+                        📅 暦
                     </button>
-                    <button id="tab-task-btn" onclick="switchTab('tasks')" class="tab-btn flex-1 text-[11px] font-black py-2 rounded-lg transition-all">
+                    <button id="tab-todo-btn" onclick="switchTab('todo')" class="tab-btn flex-1 text-[10px] font-black py-2 rounded-lg transition-all">
+                        📋 TODO
+                    </button>
+                    <button id="tab-task-btn" onclick="switchTab('tasks')" class="tab-btn flex-1 text-[10px] font-black py-2 rounded-lg transition-all">
                         ✅ タスク
                     </button>
                 </div>
@@ -144,6 +147,13 @@
                         <div id="cal-day-list" class="space-y-2">
                             <!-- JS injection -->
                         </div>
+                    </div>
+                </div>
+
+                <!-- ============ TODOセクション ============ -->
+                <div id="section-todo" class="hidden">
+                    <div id="todo-list">
+                        <!-- JS injection -->
                     </div>
                 </div>
 

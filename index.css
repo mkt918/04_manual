@@ -331,6 +331,40 @@ body {
     color: #ef4444;
 }
 
+/* ============================
+   TODOリスト
+   ============================ */
+.todo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.625rem;
+    transition: all 0.2s ease;
+}
+
+.todo-event {
+    background: var(--primary-light);
+    cursor: pointer;
+    border-left: 3px solid var(--primary);
+}
+
+.todo-event:hover {
+    background: #ede9fe;
+    transform: translateX(2px);
+}
+
+.todo-task {
+    background: #f8fafc;
+    border-left: 3px solid #e2e8f0;
+}
+
+.todo-icon {
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
 /* タスクフィルタータブ */
 .task-filter-btn {
     background: #f1f5f9;
