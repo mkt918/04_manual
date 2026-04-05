@@ -16,28 +16,43 @@ let selectedDate = null; // 'YYYY-MM-DD' 形式
 // --- DOM ELEMENTS ---
 let manualList, genreFilters, searchInput, resultsCount;
 let welcomeView, manualView, contentRender, mainMeta;
-let sidebar, toggleSidebar;
+let sidebar, toggleSidebar, rightPanel, toggleRightPanel, panelOverlay;
 let calGrid, calMonthLabel, calPrev, calNext, calDayList;
 
 function initElements() {
-    manualList     = document.getElementById('manual-list');
-    genreFilters   = document.getElementById('genre-filters');
-    searchInput    = document.getElementById('search-input');
-    resultsCount   = document.getElementById('results-count');
+    manualList        = document.getElementById('manual-list');
+    genreFilters      = document.getElementById('genre-filters');
+    searchInput       = document.getElementById('search-input');
+    resultsCount      = document.getElementById('results-count');
 
-    welcomeView    = document.getElementById('welcome-view');
-    manualView     = document.getElementById('manual-view');
-    contentRender  = document.getElementById('content-render');
-    mainMeta       = document.getElementById('main-meta');
+    welcomeView       = document.getElementById('welcome-view');
+    manualView        = document.getElementById('manual-view');
+    contentRender     = document.getElementById('content-render');
+    mainMeta          = document.getElementById('main-meta');
 
-    sidebar        = document.getElementById('sidebar');
-    toggleSidebar  = document.getElementById('toggle-sidebar');
+    sidebar           = document.getElementById('sidebar');
+    toggleSidebar     = document.getElementById('toggle-sidebar');
+    rightPanel        = document.getElementById('calendar-panel');
+    toggleRightPanel  = document.getElementById('toggle-right-panel');
+    panelOverlay      = document.getElementById('panel-overlay');
 
-    calGrid        = document.getElementById('cal-grid');
-    calMonthLabel  = document.getElementById('cal-month-label');
-    calPrev        = document.getElementById('cal-prev');
-    calNext        = document.getElementById('cal-next');
-    calDayList     = document.getElementById('cal-day-list');
+    calGrid           = document.getElementById('cal-grid');
+    calMonthLabel     = document.getElementById('cal-month-label');
+    calPrev           = document.getElementById('cal-prev');
+    calNext           = document.getElementById('cal-next');
+    calDayList        = document.getElementById('cal-day-list');
+}
+
+/** モバイル用パネル操作ユーティリティ */
+function openPanel(panel) {
+    panel.classList.add('open');
+    panelOverlay.classList.remove('hidden');
+}
+
+function closeAllPanels() {
+    sidebar.classList.remove('open');
+    rightPanel.classList.remove('open');
+    panelOverlay.classList.add('hidden');
 }
 
 // --- INITIALIZATION ---
@@ -53,11 +68,27 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
     });
 
-    // モバイルサイドバートグル
+    // モバイル: 左サイドバートグル
     if (toggleSidebar) {
         toggleSidebar.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
+            const isOpen = sidebar.classList.contains('open');
+            closeAllPanels();
+            if (!isOpen) openPanel(sidebar);
         });
+    }
+
+    // モバイル: 右パネルトグル
+    if (toggleRightPanel) {
+        toggleRightPanel.addEventListener('click', () => {
+            const isOpen = rightPanel.classList.contains('open');
+            closeAllPanels();
+            if (!isOpen) openPanel(rightPanel);
+        });
+    }
+
+    // オーバーレイクリックで全パネルを閉じる
+    if (panelOverlay) {
+        panelOverlay.addEventListener('click', closeAllPanels);
     }
 
     // カレンダー月移動
@@ -98,9 +129,8 @@ async function openDetail(id) {
     activeId = id;
     renderManuals();
 
-    if (sidebar.classList.contains('open')) {
-        sidebar.classList.remove('open');
-    }
+    // マニュアル選択時にモバイルパネルを閉じる
+    closeAllPanels();
 
     welcomeView.classList.add('hidden');
     manualView.classList.remove('hidden');
