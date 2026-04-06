@@ -46,7 +46,7 @@ body {
    右カラム（カレンダーパネル）
    ============================ */
 .right-panel {
-    width: 280px;
+    width: 360px;
     height: 100vh;
     background: var(--sidebar-bg);
     flex-shrink: 0;
