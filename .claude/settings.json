@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"[0-9]\\\\{4\\\\}[-/年][0-9]\\\\{1,2\\\\}[-/月][0-9]\\\\{1,2\\\\}\" c:/Program2/T/04_manual/manuals/)",
+      "Bash(python3 -c ':*)",
+      "Bash(node -e ':*)"
+    ]
+  }
+}
