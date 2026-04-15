@@ -377,6 +377,138 @@ body {
 }
 
 /* ============================
+   ピン留めアイテム
+   ============================ */
+.pinned-item {
+    padding: 0.625rem 0.875rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    border-left: 3px solid #f59e0b;
+    background: #fffbeb;
+    margin-bottom: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.pinned-item:hover {
+    background: #fef3c7;
+    transform: translateX(2px);
+}
+
+.pinned-item.active {
+    background: #fef3c7;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+/* 重要度バッジ */
+.importance-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+}
+.importance-high { background: #fef2f2; color: #ef4444; }
+.importance-normal { background: #f0f9ff; color: #0ea5e9; }
+.importance-low { background: #f0fdf4; color: #10b981; }
+
+/* ============================
+   タグチップ（詳細画面）
+   ============================ */
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1.5px solid #e2e8f0;
+}
+.tag-chip:hover {
+    background: #ede9fe;
+    color: #4f46e5;
+    border-color: #c4b5fd;
+}
+
+/* ============================
+   関連ノートカード
+   ============================ */
+.related-card {
+    padding: 0.875rem 1rem;
+    border-radius: 1rem;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.related-card:hover {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+
+/* ============================
+   月次サマリーモーダル
+   ============================ */
+.summary-genre-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+}
+
+.summary-timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.summary-timeline-item:last-child {
+    border-bottom: none;
+}
+.summary-timeline-item:hover .summary-timeline-title {
+    color: #4f46e5;
+}
+
+.summary-timeline-date {
+    font-size: 10px;
+    font-weight: 900;
+    color: #94a3b8;
+    flex-shrink: 0;
+    width: 2.5rem;
+    text-align: right;
+    padding-top: 2px;
+}
+.summary-timeline-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    line-height: 1.4;
+    flex: 1;
+    transition: color 0.2s;
+}
+.summary-timeline-genre {
+    font-size: 9px;
+    font-weight: 900;
+    color: #a5b4fc;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+}
+
+/* ============================
    レスポンシブ
    ============================ */
 
