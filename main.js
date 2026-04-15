@@ -1,5 +1,6 @@
 /**
- * Manual Hub Frontend Logic (3-Column with Calendar)
+ * Manual Hub Frontend Logic
+ * 機能: マニュアル閲覧 / ピン留め / タグ強化検索 / 関連ノート / 月次サマリー / カレンダー / タスク
  */
 
 // --- STATE ---
@@ -13,11 +14,16 @@ let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth(); // 0-indexed
 let selectedDate = null; // 'YYYY-MM-DD' 形式
 
+// 月次サマリー状態
+let summaryYear = new Date().getFullYear();
+let summaryMonth = new Date().getMonth();
+
 // --- DOM ELEMENTS ---
 let manualList, genreFilters, searchInput, resultsCount;
 let welcomeView, manualView, contentRender, mainMeta;
 let sidebar, toggleSidebar, rightPanel, toggleRightPanel, panelOverlay;
 let calGrid, calMonthLabel, calPrev, calNext, calDayList;
+let pinnedSection, pinnedList;
 
 function initElements() {
     manualList        = document.getElementById('manual-list');
@@ -41,6 +47,9 @@ function initElements() {
     calPrev           = document.getElementById('cal-prev');
     calNext           = document.getElementById('cal-next');
     calDayList        = document.getElementById('cal-day-list');
+
+    pinnedSection     = document.getElementById('pinned-section');
+    pinnedList        = document.getElementById('pinned-list');
 }
 
 /** モバイル用パネル操作ユーティリティ */
@@ -62,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 検索イベント
     searchInput.addEventListener('input', (e) => {
-        searchQuery = e.target.value.toLowerCase();
-        selectedDate = null; // 日付選択をリセット
+        searchQuery = e.target.value;
+        selectedDate = null;
         renderManuals();
         renderCalendar();
     });
@@ -114,6 +123,7 @@ async function fetchManuals() {
         const response = await fetch('manuals.json');
         allManuals = await response.json();
         renderFilters();
+        renderPinnedSection();
         renderManuals();
         renderCalendar();
     } catch (error) {
@@ -128,8 +138,8 @@ async function openDetail(id) {
 
     activeId = id;
     renderManuals();
+    renderPinnedSection();
 
-    // マニュアル選択時にモバイルパネルを閉じる
     closeAllPanels();
 
     welcomeView.classList.add('hidden');
@@ -138,9 +148,16 @@ async function openDetail(id) {
     contentRender.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>';
     contentRender.classList.add('fade-in');
 
+    // 重要度バッジ
+    const importanceLabel = { high: '★ 重要', normal: '普通', low: '参考' };
+    const importanceCls   = { high: 'importance-high', normal: 'importance-normal', low: 'importance-low' };
+    const imp = manual.importance || 'normal';
+
     mainMeta.innerHTML = `
         <span class="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[11px] font-black rounded-lg uppercase tracking-[0.15em] border border-indigo-100/50">${manual.genre}</span>
+        <span class="importance-badge ${importanceCls[imp]}">${importanceLabel[imp]}</span>
         <span class="text-slate-400 text-[11px] font-bold uppercase tracking-widest self-center">${new Date(manual.created_at).toLocaleDateString('ja-JP')}</span>
+        ${manual.pinned ? '<span class="text-[11px] font-black text-amber-500">📌 ピン留め</span>' : ''}
     `;
 
     try {
@@ -150,17 +167,134 @@ async function openDetail(id) {
     } catch (error) {
         contentRender.innerHTML = '<p class="text-red-500">ファイルの読み込みに失敗しました。</p>';
     }
+
+    // タグチップ描画
+    renderTagChips(manual);
+    // 関連ノート描画
+    renderRelatedNotes(manual);
 }
 
 // --- RENDERING ---
 
+/**
+ * ピン留めセクションを描画する
+ */
+function renderPinnedSection() {
+    const pinned = allManuals.filter(m => m.pinned);
+    if (pinned.length === 0) {
+        pinnedSection.classList.add('hidden');
+        return;
+    }
+    pinnedSection.classList.remove('hidden');
+    pinnedList.innerHTML = pinned.map(m => `
+        <div class="pinned-item ${activeId === m.id ? 'active' : ''}" onclick="openDetail('${m.id}')">
+            <p class="text-[12px] font-bold text-amber-800 leading-tight">${m.title}</p>
+            <p class="text-[9px] font-black text-amber-500 uppercase tracking-wider mt-0.5">${m.genre}</p>
+        </div>
+    `).join('');
+}
+
+/**
+ * タグチップを詳細画面下部に描画する
+ */
+function renderTagChips(manual) {
+    const tagArea = document.getElementById('tag-area');
+    const tagChips = document.getElementById('tag-chips');
+    if (!manual.tags || manual.tags.trim() === '') {
+        tagArea.classList.add('hidden');
+        return;
+    }
+    const tags = manual.tags.split(',').map(t => t.trim()).filter(t => t);
+    tagArea.classList.remove('hidden');
+    tagChips.innerHTML = tags.map(tag => `
+        <button class="tag-chip" onclick="filterByTag('${escapeHtml(tag)}')">#${escapeHtml(tag)}</button>
+    `).join('');
+}
+
+/**
+ * 関連ノートを描画する
+ */
+function renderRelatedNotes(manual) {
+    const area = document.getElementById('related-notes-area');
+    const list = document.getElementById('related-notes-list');
+    const ids = manual.related_ids || [];
+    const related = ids.map(id => allManuals.find(m => m.id === id)).filter(Boolean);
+
+    if (related.length === 0) {
+        area.classList.add('hidden');
+        return;
+    }
+    area.classList.remove('hidden');
+    list.innerHTML = related.map(m => `
+        <div class="related-card" onclick="openDetail('${m.id}')">
+            <p class="text-[12px] font-bold text-slate-700 leading-snug mb-1">${escapeHtml(m.title)}</p>
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-black text-indigo-400 uppercase tracking-wider">${escapeHtml(m.genre)}</span>
+                <span class="text-[9px] text-slate-300">·</span>
+                <span class="text-[9px] font-bold text-slate-400">${new Date(m.created_at).toLocaleDateString('ja-JP')}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * タグをクリックして絞り込む（#タグ名 形式で検索ボックスに入力）
+ */
+function filterByTag(tag) {
+    searchInput.value = `#${tag}`;
+    searchQuery = `#${tag}`;
+    selectedDate = null;
+    currentFilter = 'all';
+    renderManuals();
+    renderFilters();
+    renderCalendar();
+}
+
+/**
+ * タグ強化検索パーサー
+ * - "#タグ1 #タグ2" → AND絞り込み
+ * - 通常テキスト → タイトル/内容/ジャンル検索
+ */
+function applySearch(manuals, query) {
+    if (!query || query.trim() === '') return manuals;
+
+    const q = query.trim();
+    // #プレフィクスのトークンを抽出
+    const tagTokens = [];
+    const plainTokens = [];
+
+    q.split(/\s+/).forEach(token => {
+        if (token.startsWith('#')) {
+            tagTokens.push(token.slice(1).toLowerCase());
+        } else if (token.length > 0) {
+            plainTokens.push(token.toLowerCase());
+        }
+    });
+
+    return manuals.filter(m => {
+        const tagsStr = (m.tags || '').toLowerCase();
+        // AND: すべてのタグトークンがマッチすること
+        const tagMatch = tagTokens.every(tag => tagsStr.includes(tag));
+        // AND: すべての平文トークンがタイトル・内容・ジャンルにマッチすること
+        const plainMatch = plainTokens.every(p =>
+            (m.title || '').toLowerCase().includes(p) ||
+            (m.content || '').toLowerCase().includes(p) ||
+            (m.genre || '').toLowerCase().includes(p) ||
+            tagsStr.includes(p)
+        );
+        return tagMatch && plainMatch;
+    });
+}
+
 function renderManuals() {
     let filtered = allManuals;
 
+    // ジャンル/タグフィルター
     if (currentFilter !== 'all') {
         filtered = filtered.filter(m => m.genre === currentFilter || (m.tags && m.tags.includes(currentFilter)));
     }
 
+    // 日付選択
     if (selectedDate) {
         filtered = filtered.filter(m => {
             if (!m.created_at) return false;
@@ -168,13 +302,9 @@ function renderManuals() {
             const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
             return key === selectedDate;
         });
-    } else if (searchQuery) {
-        filtered = filtered.filter(m =>
-            m.title.toLowerCase().includes(searchQuery) ||
-            (m.tags && m.tags.toLowerCase().includes(searchQuery)) ||
-            (m.genre && m.genre.toLowerCase().includes(searchQuery)) ||
-            (m.content && m.content.toLowerCase().includes(searchQuery))
-        );
+    } else {
+        // 検索
+        filtered = applySearch(filtered, searchQuery);
     }
 
     filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -197,6 +327,7 @@ function renderManuals() {
                 <span class="text-[9px] font-black uppercase tracking-widest text-indigo-500">${manual.genre}</span>
                 <span class="text-[9px] font-bold text-slate-400">•</span>
                 <span class="text-[9px] font-bold text-slate-400">${new Date(manual.created_at).toLocaleDateString('ja-JP')}</span>
+                ${manual.pinned ? '<span class="text-[9px] text-amber-400">📌</span>' : ''}
             </div>
         </div>
     `).join('');
@@ -217,7 +348,6 @@ function renderCalendar() {
     const today = new Date();
     const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
-    // 月ラベル
     calMonthLabel.textContent = `${calYear}年 ${calMonth + 1}月`;
 
     // この月に登録があるマニュアルの日付セット
@@ -233,19 +363,16 @@ function renderCalendar() {
     });
 
     // グリッド生成
-    const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=日
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
     const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
     const daysInPrev = new Date(calYear, calMonth, 0).getDate();
 
     let cells = '';
 
-    // 前月の埋めセル
     for (let i = firstDay - 1; i >= 0; i--) {
-        const d = daysInPrev - i;
-        cells += `<div class="cal-cell other-month">${d}</div>`;
+        cells += `<div class="cal-cell other-month">${daysInPrev - i}</div>`;
     }
 
-    // 当月のセル
     for (let d = 1; d <= daysInMonth; d++) {
         const key = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const isToday = key === todayKey;
@@ -264,7 +391,6 @@ function renderCalendar() {
         `;
     }
 
-    // 後月の埋めセル
     const totalCells = firstDay + daysInMonth;
     const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
     for (let d = 1; d <= remaining; d++) {
@@ -272,16 +398,13 @@ function renderCalendar() {
     }
 
     calGrid.innerHTML = cells;
-
-    // 下部リスト：選択日 or 当月全マニュアル
     renderCalMonthList(manualDates);
 }
 
 function renderCalMonthList(manualDates) {
     const label = document.querySelector('#cal-day-manuals p');
-    
+
     if (selectedDate && manualDates[selectedDate]) {
-        // 選択された日のマニュアル
         const d = new Date(selectedDate);
         if (label) label.textContent = `${d.getMonth()+1}月${d.getDate()}日のマニュアル`;
         calDayList.innerHTML = manualDates[selectedDate].map(m => `
@@ -291,13 +414,12 @@ function renderCalMonthList(manualDates) {
             </div>
         `).join('');
     } else {
-        // 当月のマニュアル一覧
         if (label) label.textContent = `この月のアーカイブ`;
         const monthManuals = allManuals.filter(m => {
             if (!m.created_at) return false;
             const d = new Date(m.created_at);
             return d.getFullYear() === calYear && d.getMonth() === calMonth;
-        }).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+        }).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
         if (monthManuals.length === 0) {
             calDayList.innerHTML = `<p class="text-[10px] text-slate-300 font-bold text-center py-4">この月の登録はありません</p>`;
@@ -316,44 +438,139 @@ function renderCalMonthList(manualDates) {
     }
 }
 
+// --- 月次サマリー ---
+
+function openMonthlySummary() {
+    summaryYear = calYear;
+    summaryMonth = calMonth;
+    renderMonthlySummary(summaryYear, summaryMonth);
+    document.getElementById('monthly-modal').classList.remove('hidden');
+}
+
+function closeMonthlySummary() {
+    document.getElementById('monthly-modal').classList.add('hidden');
+}
+
+function shiftSummaryYear(delta) {
+    summaryYear += delta;
+    renderMonthlySummary(summaryYear, summaryMonth);
+}
+
+function renderMonthlySummary(year, month) {
+    const modal = document.getElementById('monthly-modal');
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+
+    title.textContent = `${year}年 ${month + 1}月 のまとめ`;
+
+    // 当該月のマニュアルを取得
+    const monthManuals = allManuals.filter(m => {
+        if (!m.created_at) return false;
+        const d = new Date(m.created_at);
+        return d.getFullYear() === year && d.getMonth() === month;
+    }).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    if (monthManuals.length === 0) {
+        body.innerHTML = `<p class="text-center text-slate-400 font-bold py-10">${year}年${month+1}月の記録はありません</p>`;
+        return;
+    }
+
+    // ジャンル別集計
+    const genreMap = {};
+    monthManuals.forEach(m => {
+        genreMap[m.genre] = (genreMap[m.genre] || 0) + 1;
+    });
+
+    const genreCards = Object.entries(genreMap).map(([g, cnt]) => `
+        <div class="summary-genre-card">
+            <span class="text-[12px] font-bold text-slate-700">${escapeHtml(g)}</span>
+            <span class="text-[12px] font-black text-indigo-600">${cnt} 件</span>
+        </div>
+    `).join('');
+
+    // ピン留め済み
+    const pinnedItems = monthManuals.filter(m => m.pinned);
+    const pinnedHtml = pinnedItems.length > 0
+        ? pinnedItems.map(m => `
+            <div class="summary-timeline-item" onclick="closeMonthlySummary(); openDetail('${m.id}')">
+                <span class="summary-timeline-date">${new Date(m.created_at).getDate()}日</span>
+                <span class="summary-timeline-title">📌 ${escapeHtml(m.title)}</span>
+                <span class="summary-timeline-genre">${escapeHtml(m.genre)}</span>
+            </div>
+          `).join('')
+        : `<p class="text-[11px] text-slate-300 font-bold">ピン留めなし</p>`;
+
+    // タイムライン（全件）
+    const timelineHtml = monthManuals.map(m => `
+        <div class="summary-timeline-item" onclick="closeMonthlySummary(); openDetail('${m.id}')">
+            <span class="summary-timeline-date">${new Date(m.created_at).getDate()}日</span>
+            <span class="summary-timeline-title">${escapeHtml(m.title)}</span>
+            <span class="summary-timeline-genre">${escapeHtml(m.genre)}</span>
+        </div>
+    `).join('');
+
+    body.innerHTML = `
+        <!-- 件数サマリー -->
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">ジャンル別件数</p>
+            <div class="grid grid-cols-2 gap-2">${genreCards}</div>
+        </div>
+        <!-- ピン留め -->
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">📌 ピン留め済み</p>
+            <div>${pinnedHtml}</div>
+        </div>
+        <!-- タイムライン -->
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">📅 タイムライン（${monthManuals.length} 件）</p>
+            <div>${timelineHtml}</div>
+        </div>
+    `;
+}
+
 // --- HELPERS ---
 
 function filterBy(genreOrTag) {
     if (window.event) window.event.stopPropagation();
     currentFilter = genreOrTag;
     selectedDate = null;
+    searchQuery = '';
+    searchInput.value = '';
     renderManuals();
     renderFilters();
     renderCalendar();
 }
 
 function selectCalDate(dateKey) {
-    if (selectedDate === dateKey) {
-        // 同じ日を再クリックで解除
-        selectedDate = null;
-        searchInput.value = '';
-        searchQuery = '';
-    } else {
-        selectedDate = dateKey;
-        searchInput.value = '';
-        searchQuery = '';
-    }
+    selectedDate = selectedDate === dateKey ? null : dateKey;
+    searchInput.value = '';
+    searchQuery = '';
     renderManuals();
     renderCalendar();
 }
 
+// --- XSS防止ユーティリティ ---
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// --- グローバル公開 ---
 window.filterBy = filterBy;
+window.filterByTag = filterByTag;
 window.openDetail = openDetail;
 window.selectCalDate = selectCalDate;
+window.openMonthlySummary = openMonthlySummary;
+window.closeMonthlySummary = closeMonthlySummary;
+window.shiftSummaryYear = shiftSummaryYear;
 
 // ============================================================
-// タスク管理（tasks.json から読み込み、Claude経由で管理）
+// タスク管理
 // ============================================================
 
 let tasks = [];
-let currentTaskFilter = 'all'; // 'all' | 'active' | 'done'
+let currentTaskFilter = 'all';
 
-// --- tasks.json を取得 ---
 async function fetchTasks() {
     try {
         const res = await fetch('tasks.json');
@@ -364,7 +581,6 @@ async function fetchTasks() {
     renderTasks();
 }
 
-// --- フィルター変更 ---
 function setTaskFilter(filter) {
     currentTaskFilter = filter;
     ['all', 'active', 'done'].forEach(f => {
@@ -374,20 +590,17 @@ function setTaskFilter(filter) {
     renderTasks();
 }
 
-// --- タスク描画 ---
 function renderTasks() {
     const list = document.getElementById('task-list');
     const progressLabel = document.getElementById('task-progress-label');
     const progressBar = document.getElementById('task-progress-bar');
     if (!list) return;
 
-    // 進捗バー更新
     const total = tasks.length;
     const done = tasks.filter(t => t.done).length;
     progressLabel.textContent = `${done} / ${total}`;
     progressBar.style.width = total === 0 ? '0%' : `${Math.round(done / total * 100)}%`;
 
-    // フィルター適用
     let filtered = tasks;
     if (currentTaskFilter === 'active') filtered = tasks.filter(t => !t.done);
     if (currentTaskFilter === 'done')   filtered = tasks.filter(t => t.done);
@@ -397,7 +610,6 @@ function renderTasks() {
         return;
     }
 
-    // 優先度順（high > normal > low）＋ 未完了を上
     const priorityOrder = { high: 0, normal: 1, low: 2 };
     const sorted = [...filtered].sort((a, b) => {
         if (a.done !== b.done) return a.done ? 1 : -1;
@@ -421,15 +633,9 @@ function renderTasks() {
     }).join('');
 }
 
-// --- XSS防止ユーティリティ ---
-function escapeHtml(str) {
-    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-// --- タブ切り替え ---
 function switchTab(tab) {
     const sectionIds = { calendar: 'section-calendar', todo: 'section-todo', tasks: 'section-tasks' };
-    const btnIds     = { calendar: 'tab-cal-btn',      todo: 'tab-todo-btn', tasks: 'tab-task-btn' };
+    const btnIds     = { calendar: 'tab-cal-btn', todo: 'tab-todo-btn', tasks: 'tab-task-btn' };
 
     const active   = 'tab-btn tab-active flex-1 text-[10px] font-black py-2 rounded-lg transition-all';
     const inactive = 'tab-btn flex-1 text-[10px] font-black py-2 rounded-lg transition-all';
@@ -445,7 +651,6 @@ function switchTab(tab) {
     if (tab === 'tasks') renderTasks();
 }
 
-// --- TODO：カレンダー予定＋タスクを統合表示 ---
 function renderTodo() {
     const todoList = document.getElementById('todo-list');
     if (!todoList) return;
@@ -456,7 +661,6 @@ function renderTodo() {
 
     const items = [];
 
-    // マニュアルから今日以降の予定を収集
     allManuals.forEach(m => {
         if (!m.created_at) return;
         const d = new Date(m.created_at);
@@ -466,7 +670,6 @@ function renderTodo() {
         }
     });
 
-    // 未完了タスクを収集
     tasks.filter(t => !t.done).forEach(t => {
         const date = t.due_date
             ? (() => { const d = new Date(t.due_date); d.setHours(0, 0, 0, 0); return d; })()
@@ -474,7 +677,6 @@ function renderTodo() {
         items.push({ type: 'task', title: t.title, date, priority: t.priority, id: t.id });
     });
 
-    // グループ定義
     const groups = [
         { key: 'today',    label: '今日',     cls: 'text-rose-500   bg-rose-50   border-rose-200',   items: [] },
         { key: 'tomorrow', label: '明日',     cls: 'text-orange-500 bg-orange-50 border-orange-200', items: [] },
@@ -492,7 +694,6 @@ function renderTodo() {
         else                 groups[3].items.push(item);
     });
 
-    // グループ内ソート（予定 > タスク、タスクは優先度順）
     const priorityOrder = { high: 0, normal: 1, low: 2 };
     groups.forEach(g => {
         g.items.sort((a, b) => {
