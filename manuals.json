@@ -1,5 +1,17 @@
 [
     {
+        "id": "12",
+        "title": "2026-04-17(金) 授業内容まとめ",
+        "path": "manuals/School/2026-04-17_class_plan.md",
+        "genre": "学校",
+        "tags": "授業, ビジネスコミュニケーション, 原価計算, 課題研究",
+        "created_at": "2026-04-17T00:00:00Z",
+        "pinned": false,
+        "importance": "normal",
+        "related_ids": [],
+        "content": "# 2026-04-17(金) 授業内容まとめ\n\n## 2-1ビジネスコミュニケーション\n- 5W3Hシートをやる\n\n## 2-2原価計算\n- 工業連絡図\n\n## 3-3・3-4課題研究\n- コーディング２"
+    },
+    {
         "id": "11",
         "title": "2026-04-16(木) 授業内容まとめ",
         "path": "manuals/School/2026-04-16_class_plan.md",
