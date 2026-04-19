@@ -538,4 +538,9 @@ body {
     .sidebar.open {
         left: 0;
     }
+
+    /* オーバーレイをサイドバーより奥に */
+    #panel-overlay {
+        z-index: 40 !important;
+    }
 }
