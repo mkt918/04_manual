@@ -19,12 +19,18 @@
         <!-- 左カラム: サイドバー -->
         <aside id="sidebar" class="sidebar flex flex-col glass-sidebar shadow-2xl shadow-indigo-100/20 z-40">
             <div class="p-6">
-                <div class="flex items-center gap-3 mb-10 group cursor-pointer" onclick="location.reload()">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform duration-300">M</div>
-                    <div class="flex flex-col">
-                        <h1 class="text-lg font-extrabold tracking-tight text-slate-800 leading-none">Manual Hub</h1>
-                        <span class="text-[10px] uppercase tracking-[0.2em] font-black text-indigo-500 mt-1">Archive System</span>
+                <div class="flex items-center justify-between mb-10">
+                    <div class="flex items-center gap-3 group cursor-pointer" onclick="location.reload()">
+                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform duration-300">M</div>
+                        <div class="flex flex-col">
+                            <h1 class="text-lg font-extrabold tracking-tight text-slate-800 leading-none">Manual Hub</h1>
+                            <span class="text-[10px] uppercase tracking-[0.2em] font-black text-indigo-500 mt-1">Archive System</span>
+                        </div>
                     </div>
+                    <!-- モバイル close ボタン -->
+                    <button id="close-sidebar" onclick="closeAllPanels()" class="hidden md:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
 
                 <!-- Search -->
