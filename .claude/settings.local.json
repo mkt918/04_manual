@@ -3,7 +3,11 @@
     "allow": [
       "Bash(pkill:*)",
       "Skill(update-config)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git config:*)",
+      "Bash(grep -E \"\\\\.\\(js|css\\)$\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(python3 -c \"from datetime import datetime; d = datetime\\(2026, 4, 20\\); print\\(f'2026-04-20 is {d.strftime\\(\\\\\"%A\\\\\"\\)} \\({[\\\\\"月\\\\\",\\\\\"火\\\\\",\\\\\"水\\\\\",\\\\\"木\\\\\",\\\\\"金\\\\\",\\\\\"土\\\\\",\\\\\"日\\\\\"][d.weekday\\(\\)]}\\)'\\)\")"
     ]
   },
   "hooks": {
